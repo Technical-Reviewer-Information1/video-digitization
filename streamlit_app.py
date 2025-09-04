@@ -100,6 +100,18 @@ if stop_button:
     st.session_state.animation_running = False
 
 if st.session_state.animation_running:
+    # フレームレートが変更された時にアニメーションを再開始するため、現在の設定を保存
+    if 'current_fps' not in st.session_state:
+        st.session_state.current_fps = fps
+    if 'current_resolution' not in st.session_state:
+        st.session_state.current_resolution = resolution
+        
+    # パラメータが変更された場合はアニメーションを再開始
+    if st.session_state.current_fps != fps or st.session_state.current_resolution != resolution:
+        st.session_state.current_fps = fps
+        st.session_state.current_resolution = resolution
+        st.rerun()
+    
     frames = create_bouncing_ball_animation(resolution)
     
     # フレームレートに応じた実際の待機時間を計算
