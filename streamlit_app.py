@@ -51,12 +51,13 @@ st.markdown("---")
 
 st.markdown("### 🎮 動画シミュレーション")
 
-def create_bouncing_ball_animation(resolution, fps):
+def create_bouncing_ball_animation(resolution):
+    # アニメーションを軽量化：フレーム数を10フレームに固定
     frames = []
-    frame_count = fps
+    frame_count = 10
     
     for i in range(frame_count):
-        t = i / fps * 2 * np.pi
+        t = i / frame_count * 2 * np.pi
         x = resolution // 2 + (resolution // 4) * np.sin(t)
         y = resolution // 2 + (resolution // 4) * np.cos(t) * 0.5
         
@@ -78,23 +79,52 @@ def create_bouncing_ball_animation(resolution, fps):
     return frames
 
 animation_container = st.empty()
+control_container = st.empty()
 
-if st.button("アニメーション開始", type="primary"):
-    frames = create_bouncing_ball_animation(resolution, fps)
+# アニメーション制御のセッション状態
+if 'animation_running' not in st.session_state:
+    st.session_state.animation_running = False
+
+col1, col2 = st.columns(2)
+
+with col1:
+    start_button = st.button("アニメーション開始", type="primary")
+
+with col2:
+    stop_button = st.button("アニメーション停止", type="secondary")
+
+if start_button:
+    st.session_state.animation_running = True
+
+if stop_button:
+    st.session_state.animation_running = False
+
+if st.session_state.animation_running:
+    frames = create_bouncing_ball_animation(resolution)
     
-    for i in range(len(frames)):
+    # フレームレートに応じた実際の待機時間を計算
+    sleep_time = 1.0 / fps
+    
+    # 1秒間のループアニメーション
+    start_time = time.time()
+    frame_index = 0
+    
+    while st.session_state.animation_running and (time.time() - start_time) < 1.0:
+        current_frame = frames[frame_index % len(frames)]
+        
         fig = go.Figure()
         fig.add_trace(go.Heatmap(
-            z=frames[i],
+            z=current_frame,
             colorscale='Blues',
             showscale=False,
             hoverinfo='skip'
         ))
         
+        elapsed_time = time.time() - start_time
         fig.update_layout(
-            title=f"フレーム {i+1}/{len(frames)} (解像度: {resolution}x{resolution}, FPS: {fps})",
-            width=400,
-            height=400,
+            title=f"フレーム {(frame_index % len(frames)) + 1}/{len(frames)} | 経過時間: {elapsed_time:.2f}秒 (解像度: {resolution}x{resolution}, FPS: {fps})",
+            width=min(400, resolution * 2),
+            height=min(400, resolution * 2),
             xaxis=dict(showticklabels=False, showgrid=False),
             yaxis=dict(showticklabels=False, showgrid=False),
             margin=dict(l=0, r=0, t=50, b=0)
@@ -103,16 +133,83 @@ if st.button("アニメーション開始", type="primary"):
         with animation_container.container():
             st.plotly_chart(fig, use_container_width=False)
         
-        time.sleep(1.0 / fps)
+        frame_index += 1
+        time.sleep(sleep_time)
+    
+    # 1秒経過後は自動停止
+    if (time.time() - start_time) >= 1.0:
+        st.session_state.animation_running = False
+        st.success(f"1秒間のアニメーション完了！ (総フレーム数: {frame_index}, 設定FPS: {fps})")
+
+st.info("""
+💡 **アニメーションについて:**
+- 1秒間のループアニメーションで、設定したFPSでフレームが切り替わります
+- 実際に表示されるフレーム数 ≈ 設定FPS（処理時間により多少の誤差があります）
+- アニメーションは1秒後に自動停止します
+- 「アニメーション停止」ボタンで途中停止も可能です
+""")
 
 st.markdown("---")
 
 st.markdown("### 📊 データ量の計算")
 
+st.markdown("#### 💡 計算式の理解")
+st.markdown("""
+**データ量の計算手順：**
+1. **1ピクセルのデータ量** = 3 bytes (RGB各色1byte)
+2. **1フレームのデータ量** = 解像度 × 解像度 × 3 bytes
+3. **1秒間のデータ量** = 1フレームのデータ量 × フレームレート
+4. **1分間のデータ量** = 1秒間のデータ量 × 60秒
+""")
+
 bytes_per_pixel = 3
 frame_data_size = resolution * resolution * bytes_per_pixel
 data_per_second = frame_data_size * fps
 data_per_minute = data_per_second * 60
+
+st.markdown("#### 🧮 現在の設定での計算過程")
+with st.container():
+    st.markdown(f"""
+    **設定値:**
+    - 解像度: {resolution} × {resolution} pixels
+    - フレームレート: {fps} fps
+    - 1ピクセルあたり: {bytes_per_pixel} bytes (RGB)
+    
+    **計算過程:**
+    """)
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.markdown(f"""
+        **ステップ1: 1フレームのデータ量**
+        ```
+        {resolution} × {resolution} × {bytes_per_pixel} = {frame_data_size:,} bytes
+        = {frame_data_size / 1024:.1f} KB
+        = {frame_data_size / 1024 / 1024:.3f} MB
+        ```
+        """)
+    
+    with col2:
+        st.markdown(f"""
+        **ステップ2: 1秒間のデータ量**
+        ```
+        {frame_data_size:,} × {fps} = {data_per_second:,} bytes
+        = {data_per_second / 1024:.1f} KB  
+        = {data_per_second / 1024 / 1024:.2f} MB
+        ```
+        """)
+
+st.markdown(f"""
+**ステップ3: 1分間のデータ量**
+```
+{data_per_second:,} × 60 = {data_per_minute:,} bytes
+= {data_per_minute / 1024 / 1024:.2f} MB
+= {data_per_minute / 1024 / 1024 / 1024:.3f} GB
+```
+""")
+
+st.markdown("#### 📈 結果まとめ")
 
 col1, col2, col3 = st.columns(3)
 
@@ -126,15 +223,15 @@ with col1:
 with col2:
     st.metric(
         "1秒あたりのデータ量",
-        f"{data_per_second / 1024 / 1024:.1f} MB",
+        f"{data_per_second / 1024 / 1024:.2f} MB",
         f"{data_per_second:,} bytes"
     )
 
 with col3:
     st.metric(
         "1分あたりのデータ量",
-        f"{data_per_minute / 1024 / 1024:.1f} MB",
-        f"{data_per_minute / 1024 / 1024 / 1024:.2f} GB"
+        f"{data_per_minute / 1024 / 1024:.2f} MB",
+        f"{data_per_minute / 1024 / 1024 / 1024:.3f} GB"
     )
 
 st.markdown("### 📈 パラメータとデータ量の関係")
@@ -157,9 +254,7 @@ for f in fps_range:
 
 fig = make_subplots(
     rows=1, cols=2,
-    subplot_titles=('解像度とデータ量の関係', 'フレームレートとデータ量の関係'),
-    x_titles=['解像度 (pixels)', 'フレームレート (fps)'],
-    y_titles=['データ量 (MB/秒)', 'データ量 (MB/秒)']
+    subplot_titles=('解像度とデータ量の関係', 'フレームレートとデータ量の関係')
 )
 
 fig.add_trace(
@@ -188,6 +283,11 @@ fig.add_trace(
 
 fig.add_vline(x=resolution, line_dash="dash", line_color="blue", row=1, col=1)
 fig.add_vline(x=fps, line_dash="dash", line_color="red", row=1, col=2)
+
+fig.update_xaxes(title_text="解像度 (pixels)", row=1, col=1)
+fig.update_xaxes(title_text="フレームレート (fps)", row=1, col=2)
+fig.update_yaxes(title_text="データ量 (MB/秒)", row=1, col=1)
+fig.update_yaxes(title_text="データ量 (MB/秒)", row=1, col=2)
 
 fig.update_layout(
     height=400,
