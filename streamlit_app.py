@@ -51,10 +51,10 @@ st.markdown("---")
 
 st.markdown("### 🎮 動画シミュレーション")
 
-def create_bouncing_ball_animation(resolution):
-    # アニメーションを軽量化：フレーム数を10フレームに固定
+def create_bouncing_ball_animation(resolution, fps):
+    # フレームレートに応じたフレーム数を生成（最小10、最大60）
+    frame_count = max(10, min(60, fps))
     frames = []
-    frame_count = 10
     
     for i in range(frame_count):
         t = i / frame_count * 2 * np.pi
@@ -112,7 +112,7 @@ if st.session_state.animation_running:
         st.session_state.current_resolution = resolution
         st.rerun()
     
-    frames = create_bouncing_ball_animation(resolution)
+    frames = create_bouncing_ball_animation(resolution, fps)
     
     # フレームレートに応じた実際の待機時間を計算
     sleep_time = 1.0 / fps
@@ -156,7 +156,8 @@ if st.session_state.animation_running:
 st.info("""
 💡 **アニメーションについて:**
 - 1秒間のループアニメーションで、設定したFPSでフレームが切り替わります
-- 実際に表示されるフレーム数 ≈ 設定FPS（処理時間により多少の誤差があります）
+- フレーム数はFPSに応じて変化します（10〜60フレーム）
+- 低いFPS（例：5fps）では少ないフレームをゆっくり表示し、高いFPS（例：60fps）では多くのフレームを素早く表示します
 - アニメーションは1秒後に自動停止します
 - 「アニメーション停止」ボタンで途中停止も可能です
 """)
