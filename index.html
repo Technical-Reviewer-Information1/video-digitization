@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>動画のデジタル表現｜情報Ⅰ共通テスト対策問題集</title>
+<meta name="description" content="フレームレートを実際に変えて見え方を確かめ、1秒あたりのデータ量を計算します。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22%2315181c%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2218%22 font-family=%22monospace%22 fill=%22%23fff%22 text-anchor=%22middle%22%3E01%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="inner">
+    <span class="eyebrow">第 5 章　デジタル　5-11</span>
+    <h1>動画のデジタル表現（pp.164）</h1>
+    <p class="lead">フレームレートを実際に変えて見え方を確かめ、1秒あたりのデータ量を計算します。</p>
+    <p class="credit">Created by Dit-Lab.(Daiki ITO)　/　Supported by Tomoaki ATSUMI</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="step" id="step1">
+    <h2><span class="no">STEP 1</span>フレームレートを体験する</h2>
+    <p class="desc">動画は<strong>フレーム</strong>と呼ばれる静止画を連続して表示したものです。1秒あたりの枚数（<strong>fps</strong>）を変えて見比べましょう。</p>
+    <div class="panel">
+      <div class="fpsbtns" id="fpsBtns"></div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn" id="playBtn">一時停止</button>
+      </div>
+      <div id="animBox" style="margin-top:12px"></div>
+      <div class="note" id="animNote" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="step2">
+    <h2><span class="no">STEP 2</span>フレームレートを求める</h2>
+    <p class="desc">フレームレート ＝ <strong>総フレーム数 ÷ 総再生時間（秒）</strong>。本文の動画AとBで確かめましょう。</p>
+    <div class="panel">
+      <div class="grid c2">
+        <div>
+          <p class="qhead" style="margin:0 0 8px">動画A</p>
+          <label class="fld" for="fA">総フレーム数</label><input type="number" id="fA" value="1440" min="1" class="mono">
+          <label class="fld" for="sA" style="margin-top:8px">総再生時間（秒）</label><input type="number" id="sA" value="60" min="1" class="mono">
+        </div>
+        <div>
+          <p class="qhead" style="margin:0 0 8px">動画B</p>
+          <label class="fld" for="fB">総フレーム数</label><input type="number" id="fB" value="900" min="1" class="mono">
+          <label class="fld" for="sB" style="margin-top:8px">総再生時間（秒）</label><input type="number" id="sB" value="30" min="1" class="mono">
+        </div>
+      </div>
+      <div class="metrics" style="margin-top:12px">
+        <div class="metric"><div class="k">動画A のフレームレート</div><div class="v" id="fpsA" style="font-size:1.4rem">—</div></div>
+        <div class="metric"><div class="k">動画B のフレームレート</div><div class="v" id="fpsB" style="font-size:1.4rem">—</div></div>
+      </div>
+      <div class="note" id="fpsNote" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="step3">
+    <h2><span class="no">STEP 3</span>1秒あたりのデータ量を計算する</h2>
+    <p class="desc">1秒あたりのデータ量 ＝ <strong>1フレームあたりのデータ量 × フレームレート</strong>。1フレームは「横 × 縦 × 1画素のビット数」です。</p>
+    <div class="panel">
+      <div class="grid c2">
+        <div>
+          <label class="fld" for="vw">横の画素数</label><input type="number" id="vw" value="2560" min="1" class="mono">
+          <label class="fld" for="vh" style="margin-top:8px">縦の画素数</label><input type="number" id="vh" value="1440" min="1" class="mono">
+          <label class="fld" for="vb" style="margin-top:8px">1画素あたりのビット数</label>
+          <select class="sel" id="vb">
+            <option value="8" selected>8ビット（256階調グレースケール）</option>
+            <option value="24">24ビット（RGB各8ビットのカラー）</option>
+            <option value="1">1ビット（白黒2階調）</option>
+          </select>
+          <label class="fld" for="vf" style="margin-top:8px">フレームレート（fps）</label><input type="number" id="vf" value="24" min="1" class="mono">
+          <label class="fld" for="vs" style="margin-top:8px">時間（秒）</label><input type="number" id="vs" value="1" min="1" class="mono">
+        </div>
+        <div>
+          <div class="eqbox" id="vEq">—</div>
+          <div class="metrics" style="margin-top:12px">
+            <div class="metric"><div class="k">データ量</div><div class="v" id="vSize" style="font-size:1.4rem">—</div></div>
+            <div class="metric"><div class="k">1フレームあたり</div><div class="v" id="vFrame" style="font-size:1.1rem">—</div></div>
+          </div>
+          <div class="note info" id="vNote" style="margin-top:12px"></div>
+        </div>
+      </div>
+      <hr class="sep">
+      <p class="qhead">本文のA・B・Cを並べて比べる</p>
+      <div class="tbl-scroll"><table class="tbl" id="abcTable"></table></div>
+      <div class="note ok" id="abcNote" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="step4">
+    <h2><span class="no">STEP 4</span>動画についての記述を選ぶ（問1）</h2>
+    <div class="panel">
+      <p class="qhead">動画のデジタル表現についての記述として適当なものはどれか。</p>
+      <div id="q1Choices" class="choice4 v"></div>
+      <div class="note" id="q1Fb" hidden style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="step5">
+    <h2><span class="no">STEP 5</span>データ量の大小関係を選ぶ（問2）</h2>
+    <div class="panel">
+      <p class="qhead">A〜Cの1秒あたりのデータ量の大小関係として正しいものはどれか。</p>
+      <ul class="bullets" style="font-size:.92rem">
+        <li>A　256階調グレースケール・2560×1440・24fps</li>
+        <li>B　RGB各8ビットカラー・1920×1080・30fps</li>
+        <li>C　24ビットフルカラー・3840×2160・30fps</li>
+      </ul>
+      <div id="q2Choices" class="choice4"></div>
+      <div class="note" id="q2Fb" hidden style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="step" id="glossary">
+    <h2><span class="no">用語</span>この節で出てくることば</h2>
+    <div class="panel"><div id="glossBox"></div></div>
+  </section>
+
+  <section class="step" id="wrap">
+    <h2><span class="no">まとめ</span>おさえておきたいこと</h2>
+    <div class="panel">
+      <ul class="bullets">
+        <li>動画は少しずつ異なる静止画（<strong>フレーム</strong>）を短い間隔で表示し、<strong>残像現象</strong>によって動いて見せている。</li>
+        <li><strong>フレームレート</strong>＝1秒あたりのフレーム数。単位は<strong>fps</strong>。総フレーム数 ÷ 総再生時間 で求める。</li>
+        <li>1秒あたりのデータ量＝（横 × 縦 × 1画素のビット数）× フレームレート。時間をかければ全体のデータ量。</li>
+        <li>動画は文字・音声・画像よりデータ量が大きいので、配信では必ず<strong>圧縮</strong>が使われる。</li>
+        <li>解像度とフレームレートが同じでも、<strong>撮影時間が長ければデータ量は増える</strong>。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2><span class="no">活用</span>授業・探究での使い方</h2>
+    <div class="use-note">
+      <h3>授業で</h3>
+      <ul>
+        <li>STEP 1 でフレームレートを 1fps から上げていき、どのあたりから自然に見えるかを全員で比べる。</li>
+        <li>STEP 2 で動画AとBのフレームレートを計算し、本文⓪の誤りを自分で見つけさせる。</li>
+        <li>STEP 3 の表でA・B・Cを並べ、解像度とフレームレートのどちらが効いているかを話し合う。</li>
+      </ul>
+      <h3 style="margin-top:12px">探究で</h3>
+      <ul>
+        <li>スマートフォンの動画撮影設定（解像度・フレームレート）を調べ、1分間のデータ量を計算する。</li>
+        <li>スポーツ中継とアニメでフレームレートが違う理由を調べる。</li>
+        <li>同じ動画を圧縮ありとなしで比べ、どこが削られているのかを考える。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  情報Ⅰ 共通テスト対策問題集（技術評論社）連動Webアプリ　/　Created by Dit-Lab.(Daiki ITO)　/　Supported by Tomoaki ATSUMI
+</footer>
+
+<script src="js/tools.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/terms.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
